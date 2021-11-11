@@ -11,7 +11,8 @@ the URL and other information of the daily wallpaper can be found in the metadat
 
 The script extracts the URL from the metadata via a regex 
 and tweaks the found URL to obtain the image without bing.com watermark.
-The wallpaper is saved to the raspbian default dir. Consequently, the wallpaper is changed 
+The wallpaper is saved to the raspbian default dir.
+Consequently, the wallpaper is changed 
 
 ## Setting up the script    
 
