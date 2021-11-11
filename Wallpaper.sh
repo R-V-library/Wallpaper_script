@@ -2,6 +2,46 @@
 # use bash
 #!/usr/bin/env bash
 
+# Help function 
+Help()
+{
+   # Display Help
+   echo ""
+   echo "Example usage $(basename $0)" 2>&1
+   echo ""
+   echo "Syntax: $(basename $0) [-dDhHqQvV]"
+   echo "options:"
+   echo "-d | -D	display description of downloaded wallpaper."
+   echo "-h | -H   	Print this Help."
+   echo "-q | -Q	Quiet mode, no output shown."
+   echo "-v | -V	Verbose mode."
+}
+
+# init argument flags 
+d=0
+q=0
+v=0
+
+# Handle arguments via getoptst
+while getopts "dDhHqQvV" option; do
+	case $option in 
+		d|D) # set description flag
+			#echo "d set"
+			d=1;;
+		h|H) # display help
+			#echo "h set"
+			Help;;
+		q|Q) # set description flag
+			#echo "q set"
+			q=1;;
+		v|V) # set verbose flag
+			#echo "v set"
+			v=1;;
+		\?) # invalid argument
+			Help;;
+	esac 
+done 
+
 # change directory to directory containing wallpapers
 cd /usr/share/rpd-wallpaper
 # echo $PWD # show working directory
@@ -45,19 +85,19 @@ then
 			break 
 		fi
 	
-		done < $filename # feed wallpaper.html file into loop 
+	done < $filename # feed wallpaper.html file into loop 
 		
-		# raspbian wallpaper directory : /usr/share/rpd-wallpaper
-		# use wget to download wallpaper and save in wallpaper directory
-		sudo wget $image -q -O Wallpaper.jpg
+	# raspbian wallpaper directory : /usr/share/rpd-wallpaper
+	# use wget to download wallpaper and save in wallpaper directory
+	sudo wget $image -q -O Wallpaper.jpg
 
-		# change wallpaper via pcmanfm
-		path="${PWD}/Wallpaper.jpg"
-		echo "$path"
-		pcmanfm --set-wallpaper /usr/share/rpd-wallpaper/Wallpaper.jpg #pcmanfm only works !without! sudo 
+	# change wallpaper via pcmanfm
+	path="${PWD}/Wallpaper.jpg"
+	echo "$path"
+	pcmanfm --set-wallpaper /usr/share/rpd-wallpaper/Wallpaper.jpg #pcmanfm only works !without! sudo 
 
-		# remove wallpaper.htlm file
-		sudo rm wallpaper.html
+	# remove wallpaper.htlm file
+	sudo rm wallpaper.html
 
 else 
 	
