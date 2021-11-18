@@ -41,11 +41,12 @@ getDescription(){
 	do 
 		if [[ $line =~ $regex ]]
 		then 
+			#echo "$line"
 						
 			# change url to download full hd image 
 			description="${BASH_REMATCH[1]}"
 									
-			if [[ $v == 1 && $q == 0 ]]
+			if [[ ($v == 1 || $d == 1) && $q == 0 ]]
 			then
 			
 				# signal regex match
@@ -57,8 +58,8 @@ getDescription(){
 			
 			# save description to a file
 			# description can be called if needed afterwards
-			#printf "Image description: $description \n" | sudo tee $PWD/description.txt 
-			echo "Image description: $description" >> sudo $PWD/description.txt
+			# only output when -q && description.txt not found
+			printf "Image description: $description \n" | sudo tee $PWD/description.txt 
 						
 			# break after regex match
 			break 
@@ -156,41 +157,8 @@ then
 	
 	done < $filename # feed wallpaper.html file into loop 
 	
+	# fetch description of image
 	getDescription
-	
-	#if [[ $d == 1 ]]
-	#then 
-		#regex='<meta property="og:description" content="(.*)" /><title>'
-		##echo "$regex"
-		
-		#while read line; # loop through file
-		#do 
-			#if [[ $line =~ $regex ]]
-			#then 
-						
-				## change url to download full hd image 
-				#description="${BASH_REMATCH[1]}"
-									
-				#if [[ $v == 1 && $q == 0 ]]
-				#then
-			
-					## signal regex match
-					#echo "Image description found" 
-			
-					## display image URL
-					#echo "Image description: $description" 
-				#fi
-			
-				## save description to a file
-				## description can be called if needed afterwards
-				#printf "$description \n" | sudo tee $PWD/description.txt 
-				
-				## break after regex match
-				#break 
-			#fi
-	
-		#done < $filename # feed wallpaper.html file into loop 
-	#fi
 		
 	# raspbian wallpaper directory : /usr/share/rpd-wallpaper
 	# use wget to download wallpaper and save in wallpaper directory
@@ -215,7 +183,7 @@ then
 		echo "Changing wallpaper"
 	fi 
 	
-	#pcmanfm --set-wallpaper /usr/share/rpd-wallpaper/Wallpaper.jpg #pcmanfm only works !without! sudo 
+	pcmanfm --set-wallpaper /usr/share/rpd-wallpaper/Wallpaper.jpg #pcmanfm only works !without! sudo 
 	
 	# remove wallpaper.htlm file
 	if [[ $v == 1 && $q == 0 ]]
@@ -235,7 +203,7 @@ else
 		echo "Last changed on: $(date +%F)"
 				
 		# Show description if file found
-		if [[ $d == 1 ]]
+		if [[ $d == 1 || $v == 1 ]]
 		then
 		
 			if [[ -e $PWD/description.txt ]]
@@ -251,33 +219,3 @@ else
 		
 fi
 
-#if [[ $d == 1 ]]
-#then 
-	#regex='<meta property="og:description" content="(.*)"'
-	##echo "$regex"
-		
-	#while read line; # loop through file
-	#do 
-		#if [[ $line =~ $regex ]]
-		#then 
-						
-			## change url to download full hd image 
-			#description="${BASH_REMATCH[1]}"
-						
-		###	if [[ $v == 1 && $q == 0 ]]
-		###	then
-				## signal regex match
-				#echo "Image description found" 
-			
-				## display image URL
-				#echo "Image description: $description" 
-		###	fi
-			
-			## break after regex match
-			#break 
-		#fi
-	
-	#done < "wallpaper.html" # feed wallpaper.html file into loop 
-	
-	#echo "Description: $description"
-#fi
