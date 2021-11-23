@@ -45,12 +45,12 @@ Help can be accessed via the -h | -H argument.
 
 >`git clone https://github.com/ReinerVerret/Wallpaper_script.git`
 
-2. Download the script as a .zip file & extract to folder in documents via.
+1. (Alternative) Download the script as a .zip file & extract to folder in documents via.
 
 > `wget https://github.com/ReinerVerret/Wallpaper_script/archive/refs/heads/master.zip` <br>
 > `unzip master.zip -d /home/pi/Documents`
 
-3. Make executable
+2. Make executable
 
 After changing to the directory containing the Wallpaper.sh script.
 
