@@ -195,9 +195,7 @@ then
 	#sudo rm Wallpaper.jpg # for debugging purposes only
 
 else 
-	# set wallpaper every time
-	pcmanfm --set-wallpaper /usr/share/rpd-wallpaper/Wallpaper.jpg #pcmanfm only works !without! sudo 
-	
+		
 	# Message if wallpaper up to date
 	if [[ $q == 0 ]]
 	then
