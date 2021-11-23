@@ -14,7 +14,7 @@ and tweaks the found URL to obtain the image without bing.com watermark.
 The wallpaper is saved to the raspbian default dir.
 Consequently, the wallpaper is changed 
 
-<img src="Wallpaper_screenshot.png" alt="Example wallpaper on Raspbian" width="400" />
+<img src="img/Wallpaper_screenshot.png" alt="Example wallpaper on Raspbian" width="400" />
 
 ## Setting up the script    
 
