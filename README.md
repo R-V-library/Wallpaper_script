@@ -64,11 +64,9 @@ a script can be executed whenever the user logs on.
 
 > `sudo nano .bashrc `
 
-Add path to script in file e.g.
+Add path to script in .bashrc file e.g.
 > `/home/pi/Documents/Wallpaper_script/Wallpaper.sh`
 
 Reboot the system for the changes to take effect.
- 
-
 
 ### Notes
