@@ -58,4 +58,17 @@ After changing to the directory containing the Wallpaper.sh script.
 
 The script is now executable (view: [Executing the script](#executing-the-script)).
 
+### Extra: execute the script at user login
+By adding the path of an executable path to the .bashrc file,
+a script can be executed whenever the user logs on.
+
+> `sudo nano .bashrc `
+
+Add path to script in file e.g.
+> `/home/pi/Documents/Wallpaper_script/Wallpaper.sh`
+
+Reboot the system for the changes to take effect.
+ 
+
+
 ### Notes
