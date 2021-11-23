@@ -1,5 +1,10 @@
-# Wallpaper_script
-Script that changes desktop background with the bing.com daily wallpaper.
+# Wallpaper script: contents
+Script that changes desktop background to the bing.com daily wallpaper.
+- [Overview](#overview)
+- [Executing the script](#executing-the-script)
+- [Script options and help](#script-options-and-help)
+- [Setting up the script](#setting-up-the-script)
+- [Notes](#notes)
 
 ## Overview
 The bing.com search engine displays a different background every day.
@@ -18,14 +23,15 @@ The wallpaper is saved to the raspbian default dir.
 The description is also dowloaded and stored in the file:
 > /usr/share/rpd-wallpaper/description.txt 
 
-Consequently, the wallpaper is changed 
+Consequently, the wallpaper is changed. 
 
-<img src="img/Wallpaper_screenshot.png" alt="Example wallpaper on Raspbian" width="600" />
+<img src="img/Wallpaper_screenshot.png" title="Example wallpaper on Raspbian"  alt="Example wallpaper on Raspbian" width="600" />
 
-### Script help and options
-Executing the script is possible via 
+### Executing the script
+Executing the script is possible via:
 > `bash Wallpaper.sh [-dDhHqQvV]`
 
+### Script options and help
 The wallpaper script can be executed as is i.e. without any arguments.
 Optional arguments include
 * -d | -D Display description of downloaded wallpaper
@@ -35,6 +41,21 @@ Optional arguments include
 Help can be accessed via the -h | -H argument.
 
 ## Setting up the script    
+1. Download the script via git.
 
+>`git clone https://github.com/ReinerVerret/Wallpaper_script.git`
+
+2. Download the script as a .zip file & extract to folder in documents via.
+
+> `wget https://github.com/ReinerVerret/Wallpaper_script/archive/refs/heads/master.zip`
+> `unzip master.zip -d /home/pi/Documents`
+
+3. Make executable
+
+After changing to the directory containing the Wallpaper.sh script.
+
+> `chmod 755 Wallpaper.sh `
+
+The script is now executable (view: [Executing the script](#executing-the-script)).
 
 ### Notes
