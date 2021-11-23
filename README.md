@@ -47,7 +47,7 @@ Help can be accessed via the -h | -H argument.
 
 2. Download the script as a .zip file & extract to folder in documents via.
 
-> `wget https://github.com/ReinerVerret/Wallpaper_script/archive/refs/heads/master.zip`
+> `wget https://github.com/ReinerVerret/Wallpaper_script/archive/refs/heads/master.zip` <br>
 > `unzip master.zip -d /home/pi/Documents`
 
 3. Make executable
