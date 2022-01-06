@@ -4,6 +4,7 @@ Script that changes desktop background to the bing.com daily wallpaper.
 - [Executing the script](#executing-the-script)
 - [Script options and help](#script-options-and-help)
 - [Setting up the script](#setting-up-the-script)
+- [Python version](#python-version)
 - [Notes](#notes)
 
 ## Overview
@@ -29,12 +30,12 @@ Consequently, the wallpaper is changed.
 
 ### Executing the script
 Executing the script is possible via:
-> `bash Wallpaper.sh [-dDhHqQvV]`
+> `bash Wallpaper.sh [-hHqQvV]`
+> (alternative) `./Wallpaper.sh [-hHqQvV]`
 
 ### Script options and help
 The wallpaper script can be executed as is i.e. without any arguments.
 Optional arguments include
-* -d | -D Display description of downloaded wallpaper
 * -q | -Q Quiet mode, no output shown
 * -v | -V Verbose mode
 
@@ -54,8 +55,13 @@ Help can be accessed via the -h | -H argument.
 
 After changing to the directory containing the Wallpaper.sh script.
 
-> `chmod 755 Wallpaper.sh `
+> `chmod 755 Wallpaper.sh`
 
 The script is now executable (view: [Executing the script](#executing-the-script)).
+
+### Python version 
+In the python branch a new version of the script can be found which is implemented in Python (3.7).
+This script has same basic functions and even couple new options.
+To view all options run the script with the -h argument.
 
 ### Notes
