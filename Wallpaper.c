@@ -9,6 +9,67 @@
 #include "time.h"
 #include "string.h"
 
+// regex
+// source:https://www.lemoda.net/c/unix-regex/
+#define MAX_ERROR_MSG 0x1000
+static int compile_regex (regex_t * rx, const char * regex_text)
+{
+    int status = regcomp (rx, regex_text, REG_EXTENDED|REG_NEWLINE);
+    if (status != 0) {
+	char error_message[MAX_ERROR_MSG];
+	regerror (status, rx, error_message, MAX_ERROR_MSG);
+        printf ("Regex error compiling '%s': %s\n",
+                 regex_text, error_message);
+        return 1;
+    }
+    return 0;
+}
+
+/*
+  Match the strxing in "to_match" against the compiled regular
+  expression in "r".
+ */
+
+static int match_regex (regex_t * rx, const char * to_match)
+{
+    /* "previous" is a pointer into the string which points to the end of the
+       previous match. */
+    const char * previous = to_match;
+    /* "N_matches" is the maximum number of matches allowed. */
+    const int n_matches = 10;
+    /* "matches" contains the matches found. */
+    regmatch_t matches[n_matches];
+
+    while (1) {
+        int i = 0;
+        int nomatch = regexec (rx, previous, n_matches, matches, 0);
+        if (nomatch) {
+            printf ("No more matches.\n");
+            return nomatch;
+        }
+        for (i = 0; i < n_matches; i++) {
+            int start;
+            int finish;
+            if (matches[i].rm_so == -1) {
+                break;
+            }
+            start = matches[i].rm_so + (previous - to_match);
+            finish = matches[i].rm_eo + (previous - to_match);
+            if (i == 0) {
+                printf ("$& is ");
+            }
+            else {
+                printf ("$%d is ", i);
+            }
+            printf ("'%.*s' (bytes %d:%d)\n", (finish - start),
+                    to_match + start, start, finish);
+        }
+        previous += matches[0].rm_eo;
+    }
+    return 0;
+}
+
+
 // argparser
 const char *argp_program_version = "Wallpaper script 1.0";
 
@@ -196,9 +257,9 @@ int main(int argc, char **argv){
 }
 
 void update_wallpaper(const struct arguments parguments){
+	
+	
 	printf("Downloading HTML file\n");
-	
-	
 	if (parguments.v){
 		system("sudo wget bing.com -O Wallpaper.html");
 	}
@@ -207,11 +268,22 @@ void update_wallpaper(const struct arguments parguments){
 	}
 	
 	char * rgx = "<meta property=\"og:image\" content=\"(.*)_tmb.jpg";
+	//char * rgx = "<meta";
 	regex_t re;
-	regmatch_t matches[1]; // only 1 regex
-	if (regcomp(&re,rgx,REG_EXTENDED|REG_NOSUB) != 0){
-		perror("Regex problem:");
+	regmatch_t matches[10]; // max 10 regex
+	int status;
+	status = regcomp(&re,rgx,REG_EXTENDED|REG_NEWLINE);
+	if (!status){
+		printf("Regex valid\n");
 	}
+	else{
+		perror("Regex invalid\n");
+	}
+	
+	/*if (regcomp(&re,rgx,REG_EXTENDED|REG_NOSUB) != 0){
+		perror("Regex problem:");
+	}*/
+	
 	printf("Executing regex search\n");
 	
 	/*	Open file	*/
@@ -219,38 +291,55 @@ void update_wallpaper(const struct arguments parguments){
 	sprintf(html_file,"%s/Wallpaper.html",parguments.set_directory);
 	
 	FILE * file = fopen(html_file,"r");
-	char * line = NULL;
+	char * line;
 	size_t len = 0;
 	ssize_t read;
-	int status;
 	int numchars;
 	char * found;
 	
 	int i = 0;
+	
 	while((read = getline(&line,&len,file)) != -1){
+		printf("Retrieved line of length %zu:\n", read);
+        //printf("%s\n", line);
+		match_regex(&re, line);
+		free(line);
+	regfree (&re);
+		
 		//printf("%d: %s\n",i,line);
 		
 		
 		/*	regex not working	*/
-		status = regexec(&re,line,0,matches,0);
+		/*status = regexec(&re,line,0,matches,0);
 		if (status != 0){
-			printf("%d: Problem with regex\n",i);
+			printf("%d: No match found\n",i);
 		}
 		else{
 			printf("%d: Regex match found\n",i);
-			numchars =(int) matches[0].rm_eo - (int) matches[0].rm_so;
+			for (int j=0; j < 10; j++){
+				if ((int) matches[j].rm_so < 0) break;
+				numchars =(int) matches[j].rm_eo - (int) matches[j].rm_so;
+				found = (char *) malloc((numchars+1)/sizeof(char));
+				strncpy(found,line+matches[j].rm_so,numchars);
+				found[numchars] = '\0';
+				printf("From %d to %d (%s) \n", (int) matches[j].rm_so, (int) matches[j].rm_eo, found);
+				printf("Found match: %s\n",found);
+			}*/
+		
+			
+			/* numchars =(int) matches[0].rm_eo - (int) matches[0].rm_so;
 			found = (char *) malloc((numchars+1)/sizeof(char));
 			strncpy(found,line+matches[0].rm_so,numchars);
 			found[numchars] = '\0';
 			printf("From %d to %d (%s) \n", (int) matches[0].rm_so, (int) matches[0].rm_eo, found);
-			printf("Found match: %s\n",found);
+			printf("Found match: %s\n",found);*/
 			//break;
-		}
+		
 		i = i+1;
 	}
 	fclose(file);
 	free(line);
-	free(found);
+	//free(found);
 	
 	//int status = regexec(&re,string,0,NULL,0);
 	regfree(&re);
