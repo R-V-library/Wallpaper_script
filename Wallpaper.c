@@ -12,7 +12,8 @@
 // regex
 // source:https://www.lemoda.net/c/unix-regex/
 #define MAX_ERROR_MSG 0x1000
-static int compile_regex (regex_t * rx, const char * regex_text)
+
+/* static int compile_regex (regex_t * rx, const char * regex_text)
 {
     int status = regcomp (rx, regex_text, REG_EXTENDED|REG_NEWLINE);
     if (status != 0) {
@@ -23,18 +24,19 @@ static int compile_regex (regex_t * rx, const char * regex_text)
         return 1;
     }
     return 0;
-}
+}*/
 
 /*
   Match the strxing in "to_match" against the compiled regular
   expression in "r".
  */
 
-static int match_regex (regex_t * rx, const char * to_match)
+int match_regex (regex_t * rx, const char * to_match, char * result)
 {
     /* "previous" is a pointer into the string which points to the end of the
        previous match. */
-    const char * previous = to_match;
+    char * previous = to_match;
+    //previous = to_match;
     /* "N_matches" is the maximum number of matches allowed. */
     const int n_matches = 10;
     /* "matches" contains the matches found. */
@@ -44,8 +46,8 @@ static int match_regex (regex_t * rx, const char * to_match)
         int i = 0;
         int nomatch = regexec (rx, previous, n_matches, matches, 0);
         if (nomatch) {
-            printf ("No more matches.\n");
-            return nomatch;
+            printf ("No matches found.\n\r");
+            return 0;
         }
         for (i = 0; i < n_matches; i++) {
             int start;
@@ -61,11 +63,14 @@ static int match_regex (regex_t * rx, const char * to_match)
             else {
                 printf ("$%d is ", i);
             }
-            printf ("'%.*s' (bytes %d:%d)\n", (finish - start),
+            printf ("'%.*s' (bytes %d:%d)\n\r", (finish - start),
                     to_match + start, start, finish);
+            snprintf(result,PATH_MAX,"%.*s",(finish-start), to_match + start);
         }
         previous += matches[0].rm_eo;
+        break;
     }
+    
     return 0;
 }
 
@@ -280,10 +285,6 @@ void update_wallpaper(const struct arguments parguments){
 		perror("Regex invalid\n");
 	}
 	
-	/*if (regcomp(&re,rgx,REG_EXTENDED|REG_NOSUB) != 0){
-		perror("Regex problem:");
-	}*/
-	
 	printf("Executing regex search\n");
 	
 	/*	Open file	*/
@@ -295,16 +296,18 @@ void update_wallpaper(const struct arguments parguments){
 	size_t len = 0;
 	ssize_t read;
 	int numchars;
-	char * found;
 	
 	int i = 0;
-	
-	while((read = getline(&line,&len,file)) != -1){
+	int ready = 1;
+	char result[PATH_MAX];
+	while((read = getline(&line,&len,file)) != -1 && ready != 0){
 		printf("Retrieved line of length %zu:\n", read);
+        
         //printf("%s\n", line);
-		match_regex(&re, line);
-		free(line);
-	regfree (&re);
+		ready = match_regex(&re, line, result);
+		printf("found = %s\n\r",result);
+		//free(line);
+		//regfree(&re);
 		
 		//printf("%d: %s\n",i,line);
 		
@@ -335,7 +338,7 @@ void update_wallpaper(const struct arguments parguments){
 			printf("Found match: %s\n",found);*/
 			//break;
 		
-		i = i+1;
+		//i = i+1;
 	}
 	fclose(file);
 	free(line);
@@ -344,5 +347,13 @@ void update_wallpaper(const struct arguments parguments){
 	//int status = regexec(&re,string,0,NULL,0);
 	regfree(&re);
 	
+	char url[PATH_MAX];
+	snprintf(url,PATH_MAX,"%s_1920x1080.jpg",result);
+	printf("Found image URL: %s",url);
+	
+	printf("Downloading new image\n\r");
+	char command[PATH_MAX];
+	sprintf(command, "sudo wget %s -q -o Wallpaper.jpg",url);
+	printf("Command: %s\n\r",command);
 	
 }
