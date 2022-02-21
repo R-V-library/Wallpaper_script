@@ -8,17 +8,18 @@
 #include "limits.h"
 #include "time.h"
 #include "string.h"
+#include "stdbool.h"
 
 /* Struct which stores argument values */
 struct arguments{
 	char * args[4]; 
-	int q,v,p; // quiet & verbose flag
+	bool q,v,p; // quiet & verbose flag
 	char * set_directory; // directory chosen by user
 	char wallpaper_file[PATH_MAX]; // filename chosen by user
 };
 
 /*	Function definitions	*/
-void update_wallpaper(const struct arguments);
+int update_wallpaper(const struct arguments);
 int match_regex(regex_t *, char *, char *);
 
 
@@ -49,17 +50,10 @@ static error_t parse_opt(int key, char* arg, struct argp_state *state){
 		case 'd' : case 'D':
 			parguments->p = 1;
 			parguments->set_directory = arg;
-			//printf("path: %s\n",parguments->set_directory);
 			break;
 	
 		case 'p' : case 'P':
 			parguments->p = 1;
-			/*if (parguments->set_directory == NULL){
-				printf("No path found\n");
-			}
-			else{
-				printf("path: %s\n",parguments->set_directory);
-			}*/
 			break;
 	
 		case 'q' : case 'Q':
@@ -88,17 +82,7 @@ static error_t parse_opt(int key, char* arg, struct argp_state *state){
 
 static struct argp argparser = {options,parse_opt,args_doc,doc};
 
-
-// logging : nok
-// os / system : ok
-// regex : ok
-// date time : ok 
-//downloads using wget: ok
-
-
 int main(int argc, char **argv){
-	
-	char wallpaper[PATH_MAX] = ""; // avoid segmentation fault by using max path size
 	
 	/*	Specify default path	*/ 
 	char * default_path = "/usr/share/rpd-wallpaper";
@@ -112,30 +96,33 @@ int main(int argc, char **argv){
 	argp_parse(&argparser,argc,argv,0,0,&parguments);
 	
 	/*	Debugging purposes	*/ 
-	printf("Arguments: \n V: %d \n Q: %d \n P: %s \n D: %s \n",parguments.v,parguments.q,parguments.set_directory,parguments.set_directory);
+	//printf("Arguments: \n V: %d \n Q: %d \n P: %s \n D: %s \n",parguments.v,parguments.q,parguments.set_directory,parguments.set_directory);
 	
 	/*	change dir according to flags	*/
 	if (chdir(parguments.set_directory) != 0){
-		perror("Chdir command failed");
+		perror("Chdir command failed\n\r");
+		exit(EXIT_FAILURE);
 	}
-	else{
-			printf("New dir: %s\n",parguments.set_directory);
+	else if (!parguments.q){
+			printf("Working directory: %s\n\r",parguments.set_directory);
 	}
 	
 	/* Define Wallpaper file name */
 	sprintf(parguments.wallpaper_file,"%s/Wallpaper.jpg",parguments.set_directory);
 	
 	/*	Display dir if -d or -p used and not quiet	*/
-	if ((parguments.set_directory || parguments.p)  && !parguments.q){
-		printf("Chosen directory: %s\n",parguments.set_directory);
-		printf("Wallpaper file: %s\n",parguments.wallpaper_file);
+	if ((parguments.p || parguments.v) && !parguments.q){
+		//printf("Chosen directory: %s\n\r", parguments.set_directory);
+		printf("Wallpaper file: %s\n\r", parguments.wallpaper_file);
 	}
 	
 	/*	Check if file exists	*/
 	struct stat filestat;
-	int exist = stat(parguments.wallpaper_file,&filestat);
-	if (exist == 0){
-		printf("File found\n");
+	if (stat(parguments.wallpaper_file,&filestat) == 0){
+		
+		if (parguments.v && !parguments.q){
+			printf("File found\n\r");
+		}
 		
 		/*	Check if up to date	*/
 		char t_wallpaper[PATH_MAX];
@@ -144,36 +131,48 @@ int main(int argc, char **argv){
 		
 		strftime(t_wallpaper, PATH_MAX, "%Y-%m-%d", localtime(&filestat.st_mtime));
 		strftime(t_now, PATH_MAX, "%Y-%m-%d", localtime(&t));
-		printf("Time updated: %s\n",t_wallpaper);
-		printf("Time today: %s\n",t_now);
+		if (parguments.v && !parguments.q){
+			printf("Date updated: %s\n\r",t_wallpaper);
+			printf("Date today: %s\n\r",t_now);
+		}
 		
 		if (strcmp(t_now,t_wallpaper) == 0){
-			printf("File up to date\n");
+			if (!parguments.q){
+				printf("File up to date\n\r");
+			}
 		}
 		
 		/*	If out of date download new	*/
 		else {
-			printf("Fetching new Wallpaper\n");
-			update_wallpaper(parguments);
+			if (!parguments.q){
+				printf("Fetching new Wallpaper\n\r");
+			}
+			if (update_wallpaper(parguments) != 0){
+				exit(EXIT_FAILURE);
+			}
 		}
 	}
 	
 	/*	If file not found then download new	*/
 	else{
-		printf("File not found\n");
-		printf("Fetching new Wallpaper\n");
-		update_wallpaper(parguments);
+		if (parguments.v && !parguments.q){
+			perror("File not found\n\r");
+			printf("Fetching new Wallpaper\n\r");
+		}
+		if (update_wallpaper(parguments) != 0){
+			exit(EXIT_FAILURE);
+		}
 	}
 	
 	/*	Exit program	*/
-	exit(0);
+	exit(EXIT_SUCCESS);
 }
 
-void update_wallpaper(const struct arguments parguments){
-		
-	if (parguments.v){
-		printf("Downloading HTML file\n");
-		system("sudo wget bing.com -O Wallpaper.html");
+int update_wallpaper(const struct arguments parguments){
+	/*	Download HTML page to extract data	*/	
+	if (parguments.v && !parguments.q){
+		printf("Downloading HTML file\n\r");
+		system("sudo wget bing.com -v -O Wallpaper.html");
 	}
 	else {
 		system("sudo wget bing.com -q -O Wallpaper.html");
@@ -181,18 +180,21 @@ void update_wallpaper(const struct arguments parguments){
 	
 	char * rgx = "<meta property=\"og:image\" content=\"(.*)_tmb.jpg";
 	regex_t re;
-	int status;
-	status = regcomp(&re,rgx,REG_EXTENDED|REG_NEWLINE);
-	if (!status){
-		printf("Regex valid\n");
+	/*	Check if regex valid	*/ 
+	if (regcomp(&re,rgx,REG_EXTENDED|REG_NEWLINE) == 0){
+		if (parguments.v && !parguments.q){
+		printf("Regex valid\n\r");
+		}
 	}
 	else{
-		perror("Regex invalid\n");
+		perror("Regex invalid\n\r");
 	}
-	
-	printf("Executing regex search\n");
-	
-	/*	Open file	*/
+
+	if (parguments.v && !parguments.q){
+		printf("Executing regex search\n\r");
+	}
+		
+	/*	Open file + search for regex	*/
 	char html_file[PATH_MAX];
 	sprintf(html_file,"%s/Wallpaper.html",parguments.set_directory);
 	
@@ -200,50 +202,67 @@ void update_wallpaper(const struct arguments parguments){
 	char * line;
 	size_t len = 0;
 	ssize_t read;
-	
-	int ready = 1;
+	bool ready = false;
 	char result[PATH_MAX];
-	while((read = getline(&line,&len,file)) != -1 && ready != 0){
-		printf("Retrieved line of length %zu:\n", read);
-        
-        //printf("%s\n", line);
-		ready = match_regex(&re, line, result);
-		printf("found = %s\n\r",result);
-		
+	while((read = getline(&line,&len,file)) != -1 && !ready){
+		ready = !match_regex(&re, line, result);
+		if (parguments.v && !parguments.q){
+			printf("Retrieved line of length %zu:\n\r", read);
+			printf("found = %s\n\r",result);
+		}		
 	}
+	
+	/*	Close file + free mem	*/ 
 	fclose(file);
 	free(line);
-	
 	regfree(&re);
 	
+	/*	Construct URL	*/
 	char url[PATH_MAX];
 	snprintf(url,PATH_MAX,"%s_1920x1080.jpg",result);
-	printf("Found image URL: %s",url);
+	if (parguments.v && !parguments.q){
+		printf("Found image URL: %s",url);
+	}
 	
-	// download html file
-	printf("Downloading new image\n\r");
+	/* Download html file	*/
 	char command[PATH_MAX];
-	sprintf(command, "sudo wget %s -q -O Wallpaper.jpg",url);
+	if (parguments.v){
+		sprintf(command, "sudo wget %s -v -O Wallpaper.jpg",url);
+	}
+	else{
+		sprintf(command, "sudo wget %s -q -O Wallpaper.jpg",url);
+	}
 	system(command);
-	printf("Command: %s\n\r",command);
+	if (!parguments.q){
+		printf("Downloading new image\n\r");
+		if (parguments.v){
+			printf("Command: %s\n\r",command);
+		}
+	}
 	
-	// remove html file
+	/* remove html file	*/
 	sprintf(command, "sudo rm ./Wallpaper.html");
 	system(command);
+	if (parguments.v && !parguments.q){
+		printf("Removing HTML page\n\r");
+	}
 	
 	// update wallpaper
-	printf("Updating wallpaper");
 	sprintf(command,"pcmanfm --set-wallpaper %s/Wallpaper.jpg",parguments.set_directory);
-	printf(command);
 	system(command);
-	
-	
+	if (!parguments.q){
+		printf("Updating wallpaper\n\r");
+		if (parguments.v){
+			printf(command);
+		}
+	}
+	return EXIT_SUCCESS;	
 }
 
 /*
   Match the string in <to_match> against the compiled regular
   expression in <rx> and store result in <result>.
-  source:https://www.lemoda.net/c/unix-regex/
+  inspiration/source:https://www.lemoda.net/c/unix-regex/
  */
 int match_regex (regex_t * rx, char * to_match, char * result)
 {
@@ -270,14 +289,6 @@ int match_regex (regex_t * rx, char * to_match, char * result)
             }
             start = matches[i].rm_so + (previous - to_match);
             finish = matches[i].rm_eo + (previous - to_match);
-            if (i == 0) {
-                printf ("$& is ");
-            }
-            else {
-                printf ("$%d is ", i);
-            }
-            printf ("'%.*s' (bytes %d:%d)\n\r", (finish - start),
-                    to_match + start, start, finish);
             snprintf(result,PATH_MAX,"%.*s",(finish-start), to_match + start);
         }
         previous += matches[0].rm_eo;
