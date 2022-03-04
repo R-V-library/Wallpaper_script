@@ -36,6 +36,9 @@ def update_wallpaper(logger):
 	regex = r"<meta property=\"og:image\" content=\"(.*)_tmb.jpg"	
 	logger.debug("Regex used: "+regex)
 	
+	# Regex to extract description
+	regex2 = r"{\"Description\":\"(.*)\",\"Image\":{"
+		
 	logger.debug(" Trying to open file: %s"% (os.getcwd() + "/Wallpaper.html"))
 	
 	# Search image URL in html file
@@ -43,14 +46,23 @@ def update_wallpaper(logger):
 		with open("Wallpaper.html",'r') as f:
 			logger.debug("Succesfully opened file: %s"% (os.getcwd() + "/Wallpaper.html"))
 			for line in f:
-				m = re.search(regex,line.strip())
+				m = re.search(regex, line.strip())
 				if m:
 					logger.debug("Regex match found")
 					
 					# Make image URL from found URL 
-					url = m.group(1)+ "_1920x1080.jpg"
+					url = m.group(1) + "_1920x1080.jpg"
 					logger.info("Found image URL: "+ url)
 					break	
+					
+			for line in f:
+				m = re.search(regex2, line.strip())
+				if m:
+					logger.debug("Regex match found")
+					
+					# Display description of image
+					logger.info("Image description: " + m.group(1))
+								
 			logger.debug("Closing and removing file: %s "% (os.getcwd() + "/Wallpaper.html"))			
 			f.close()
 			
