@@ -112,7 +112,7 @@ int main(int argc, char **argv){
 	
 	/*	Display dir if -d or -p used and not quiet	*/
 	if ((parguments.p || parguments.v) && !parguments.q){
-		//printf("Chosen directory: %s\n\r", parguments.set_directory);
+		printf("Chosen directory: %s\n\r", parguments.set_directory);
 		printf("Wallpaper file: %s\n\r", parguments.wallpaper_file);
 	}
 	
@@ -203,7 +203,7 @@ int update_wallpaper(const struct arguments parguments){
 	size_t len = 0;
 	ssize_t read;
 	bool ready = false;
-	char result[PATH_MAX];
+	char result[PATH_MAX] = "";
 	while((read = getline(&line,&len,file)) != -1 && !ready){
 		ready = !match_regex(&re, line, result);
 		if (parguments.v && !parguments.q){
@@ -212,16 +212,17 @@ int update_wallpaper(const struct arguments parguments){
 		}		
 	}
 	
+	
 	/*	Close file + free mem	*/ 
 	fclose(file);
 	free(line);
 	regfree(&re);
-	
+		
 	/*	Construct URL	*/
 	char url[PATH_MAX];
 	snprintf(url,PATH_MAX,"%s_1920x1080.jpg",result);
 	if (parguments.v && !parguments.q){
-		printf("Found image URL: %s",url);
+		printf("Found image URL: %s\n\r",url);
 	}
 	
 	/* Download html file	*/
@@ -240,6 +241,46 @@ int update_wallpaper(const struct arguments parguments){
 		}
 	}
 	
+	/*	Display image description	*/
+	if (!parguments.q){
+		
+		char * rgx2 ="\"Description\":(\".*\"),\"Image\":"; 
+		/*	Check if regex valid	*/ 
+		if (regcomp(&re,rgx2,REG_EXTENDED|REG_NEWLINE) == 0){
+			if (parguments.v){
+				printf("Regex 2 valid\n\r");
+			}
+		}
+		else{
+			perror("Regex 2 invalid \n\r");
+		}
+
+		if (parguments.v){
+			printf("Executing regex search\n\r");
+		}
+		
+		FILE * file = fopen(html_file,"r");
+		char * line;
+		size_t len = 0;
+		ssize_t read;
+		ready = false;
+		char result[PATH_MAX];
+		while((read = getline(&line,&len,file)) != -1 && !ready){
+			ready = !match_regex(&re, line, result);
+			if (parguments.v){
+				printf("Retrieved line of length %zu:\n\r", read);
+			}
+			
+		}
+		
+		printf("Image description: %s\n\r",result);
+		
+		/*	Close file + free mem	*/ 
+		fclose(file);
+		free(line);
+		regfree(&re);
+	}
+	
 	/* remove html file	*/
 	sprintf(command, "sudo rm ./Wallpaper.html");
 	system(command);
@@ -247,7 +288,7 @@ int update_wallpaper(const struct arguments parguments){
 		printf("Removing HTML page\n\r");
 	}
 	
-	// update wallpaper
+	/* update wallpaper */
 	sprintf(command,"pcmanfm --set-wallpaper %s/Wallpaper.jpg",parguments.set_directory);
 	system(command);
 	if (!parguments.q){
@@ -262,7 +303,7 @@ int update_wallpaper(const struct arguments parguments){
 /*
   Match the string in <to_match> against the compiled regular
   expression in <rx> and store result in <result>.
-  inspiration/source:https://www.lemoda.net/c/unix-regex/
+  inspiration/source: https://www.lemoda.net/c/unix-regex/
  */
 int match_regex (regex_t * rx, char * to_match, char * result)
 {
@@ -278,8 +319,8 @@ int match_regex (regex_t * rx, char * to_match, char * result)
         int i = 0;
         int nomatch = regexec (rx, previous, n_matches, matches, 0);
         if (nomatch) {
-            printf ("No matches found.\n\r");
-            return 0;
+            //printf ("No matches found.\n\r");
+            return 1;
         }
         for (i = 0; i < n_matches; i++) {
             int start;
