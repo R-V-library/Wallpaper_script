@@ -82,6 +82,7 @@ static error_t parse_opt(int key, char* arg, struct argp_state *state){
 
 static struct argp argparser = {options,parse_opt,args_doc,doc};
 
+/*		~~~ Main ~~~		*/
 int main(int argc, char **argv){
 	
 	/*	Specify default path	*/ 
@@ -168,6 +169,7 @@ int main(int argc, char **argv){
 	exit(EXIT_SUCCESS);
 }
 
+/*		~~~ Update wallpaper~~~			*/
 int update_wallpaper(const struct arguments parguments){
 	/*	Download HTML page to extract data	*/	
 	if (parguments.v && !parguments.q){
