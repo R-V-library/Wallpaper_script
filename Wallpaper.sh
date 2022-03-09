@@ -4,6 +4,7 @@
 # init argument flags 
 q=0
 v=0
+d=/usr/share/rpd-wallpaper
 
 # Help function 
 Help()
@@ -12,25 +13,25 @@ Help()
    echo ""
    echo "Example usage $(basename $0)" 2>&1
    echo ""
-   echo "Syntax: $(basename $0) [-hHqQvV]"
+   echo "Syntax: $(basename $0) [-hHqQvV]<-d|D path>"
    echo "options:"
-   echo "-h | -H   	Print this Help."
+   echo "-d | -D	Change output directory."
+   echo "-h | -H	Print this Help."
    echo "-q | -Q	Quiet mode, no output shown."
    echo "-v | -V	Verbose mode."
    exit 0
 }
 
 # Handle arguments via getopts
-while getopts "hHqQvV" option; do
+while getopts "d:D:hHqQvV" option; do
 	case $option in 
+		d|D) # change output directory
+			d=${OPTARG};;
 		h|H) # display help
-			#echo "h set"
 			Help;;
 		q|Q) # set quiet flag, higher priority then verbose flag
-			#echo "q set"
 			q=1;;
 		v|V) # set verbose flag
-			#echo "v set"
 			v=1;;
 		\?) # invalid argument
 			Help;;
@@ -38,7 +39,7 @@ while getopts "hHqQvV" option; do
 done 
 
 # change directory to directory containing wallpapers
-cd /usr/share/rpd-wallpaper
+cd $d
 
 if [[ $v == 1 && $q == 0 ]]
 then
@@ -69,7 +70,7 @@ then
 			
 	# filename contained in html header (<meta property="og:image" .... >)
 	# use regex to extract file url from header
-	filename='Wallpaper.html'
+	filename2='Wallpaper.html'
 	regex='<meta property="og:image" content="(.*)_tmb.jpg'
 	
 	if [[ $v == 1 && $q == 0 ]]
@@ -93,6 +94,40 @@ then
 			
 				# display image URL
 				echo "Image URL: $image" 
+			fi
+			
+			# break after regex match
+			break 
+		fi
+	
+	done < $filename2 # feed wallpaper.html file into loop 
+	
+	filename='Wallpaper.html'
+	regex2='"Description":(.*),"Image":'
+	
+	if [[ $v == 1 && $q == 0 ]]
+	then
+		echo "Description regex: $regex2" # display Regex used 
+	fi 
+	
+	while read line; # loop through file
+	do 
+		if [[ $line =~ $regex2 ]]
+		then 
+						
+			# change url to download full hd image 
+			description="${BASH_REMATCH[1]}"
+			
+			if [[ $q == 0 ]]
+			then
+				if [[ $v == 1 ]]
+				then 
+					# signal regex match
+					echo "Image description found" 
+				fi
+				
+				# display image URL
+				echo "Image description: $description" 
 			fi
 			
 			# break after regex match
@@ -132,8 +167,7 @@ then
 	then 
 		echo "Removing html file"
 	fi	
-	
-	
+		
 else 
 		
 	# Message if wallpaper up to date
