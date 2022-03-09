@@ -14,16 +14,13 @@ This image is only available for download  with a watermark through the website.
 However, when taking a closer look at the html header of the bing.com website,
 the URL and other information of the daily wallpaper can be found in the metadata.
 
-> `<meta property="og:image" content="..." />`
+> `<meta property="og:image" content="..." />` <br>
 > `{"Description":"...","Image":{`
 
 The script extracts the URL and description from the metadata via a regex 
 and tweaks the found URL to obtain the image without bing.com watermark.
 The wallpaper is saved to the raspbian default dir. 
 > /usr/share/rpd-wallpaper
-
-The description is also dowloaded and stored in the file:
-> /usr/share/rpd-wallpaper/description.txt 
 
 Consequently, the wallpaper is changed. 
 
@@ -47,10 +44,10 @@ Help can be accessed via the -h | -H argument.
 
 >`git clone https://github.com/ReinerVerret/Wallpaper_script.git`
 
-1. (Alternative) Download the script as a .zip file & extract to folder in documents via.
+1. (Alternative) Download the script as a .zip file & extract to user binaries via.
 
 > `wget https://github.com/ReinerVerret/Wallpaper_script/archive/refs/heads/master.zip` <br>
-> `unzip master.zip -d /home/pi/Documents`
+> `unzip master.zip -d /usr/bin`
 
 2. Make executable
 
