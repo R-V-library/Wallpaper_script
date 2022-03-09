@@ -28,12 +28,13 @@ Consequently, the wallpaper is changed.
 
 ### Executing the script
 Executing the script is possible via:
-> `bash Wallpaper.sh [-hHqQvV]`
-> (alternative) `./Wallpaper.sh [-hHqQvV]`
+> `bash Wallpaper.sh [-hHqQvV]<-dD path>`
+> (alternative) `./Wallpaper.sh [-hHqQvV]<-dD path>`
 
 ### Script options and help
 The wallpaper script can be executed as is i.e. without any arguments.
 Optional arguments include
+* -d | -D Specify output directory
 * -q | -Q Quiet mode, no output shown
 * -v | -V Verbose mode
 
