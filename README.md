@@ -5,6 +5,7 @@ Script that changes desktop background to the bing.com daily wallpaper.
 - [Script options and help](#script-options-and-help)
 - [Setting up the script](#setting-up-the-script)
 - [Python version](#python-version)
+- [C version](#C-version)
 - [Notes](#notes)
 
 ## Overview
@@ -14,7 +15,7 @@ However, when taking a closer look at the html header of the bing.com website,
 the URL and other information of the daily wallpaper can be found in the metadata.
 
 > `<meta property="og:image" content="..." />`
-> `<meta property="og:description" content="..." />`
+> `{"Description":"...","Image":{`
 
 The script extracts the URL and description from the metadata via a regex 
 and tweaks the found URL to obtain the image without bing.com watermark.
@@ -64,4 +65,11 @@ In the python branch a new version of the script can be found which is implement
 This script has same basic functions and even couple new options.
 To view all options run the script with the -h argument.<br>
 (See: [Python branch](../../tree/python_version))
+
+## C version
+A C version of the wallpaper script can be found in the C_version branch. 
+This script basically mirrors the use of the python version script.
+To view all options run the script with the --help or --usage argument.<br>
+(See: [C branch](../../tree/C_version))
+
 ### Notes
